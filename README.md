@@ -5,6 +5,12 @@
 [![Actions Status](https://github.com/paser-group/KubeSec/workflows/Build%20KubeTaint/badge.svg)](https://github.com/Build%20TaintPupp/actions)
 
 
+# COMP-6710 TERM PROJECT (KubeSec Evaluation)
+
+Reid Johnson (arj0019@auburn.edu)
+
+John Chong (jhc0065@auburn.edu)
+
 # Taintube: Taint Tracking for Security Analysis of Kubernetes Manifests 
 
 ## Development Environment
