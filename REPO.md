@@ -39,3 +39,20 @@ The following security weaknesses were detected for the given copy of KubeSec (a
 |.\parser.py        |subprocess_without_shell_equals_true|B603   |LOW           |HIGH            |https://cwe.mitre.org/data/definitions/78.html |subprocess call - check for execution of untrusted input.                     |332        |25        |106           |[332]     |https://bandit.readthedocs.io/en/1.7.5/plugins/b603_subprocess_without_shell_equals_true.html  |
 |.\parser.py        |start_process_with_partial_path     |B607   |LOW           |HIGH            |https://cwe.mitre.org/data/definitions/78.html |Starting a process with a partial executable path                             |347        |21        |102           |[347]     |https://bandit.readthedocs.io/en/1.7.5/plugins/b607_start_process_with_partial_path.html       |
 |.\parser.py        |subprocess_without_shell_equals_true|B603   |LOW           |HIGH            |https://cwe.mitre.org/data/definitions/78.html |subprocess call - check for execution of untrusted input.                     |347        |21        |102           |[347]     |https://bandit.readthedocs.io/en/1.7.5/plugins/b603_subprocess_without_shell_equals_true.html  |
+
+## Implementation of Forensics (logging)
+Logging was [implemented](https://github.com/arj0019/JellyfishToast-SQA2023-AUBURN/blob/2769a05c6fe101f7d7a6f425c9b882c7b46d835e/scanner.py#L20) for five methods to enable forensic analysis of KubeSec.
+
+Methods within `scanner.py` were selecteded for logging as they are referenced directly by main.py (by executing scanner.runScanner).
+
+The logger outputs to `sys.stdout` and `scanner.log`, so that the user may easily reference logs.
+
+\- [`runScanner`](https://github.com/arj0019/JellyfishToast-SQA2023-AUBURN/blob/2769a05c6fe101f7d7a6f425c9b882c7b46d835e/scanner.py#L668): Log progress information and formatting warnings; relevant print statements replaced with logging.
+
+\- [`getYAMLFiles`](https://github.com/arj0019/JellyfishToast-SQA2023-AUBURN/blob/2769a05c6fe101f7d7a6f425c9b882c7b46d835e/scanner.py#L79): Log information such as directory contents and path/formatting warnings (Ex. file does not have YAML extension).
+
+\- [`isValidUserName`](https://github.com/arj0019/JellyfishToast-SQA2023-AUBURN/blob/2769a05c6fe101f7d7a6f425c9b882c7b46d835e/scanner.py#L95): Log validity warnings (Ex. forbidden value) or success information.
+
+\- [`isValidPasswordName`](https://github.com/arj0019/JellyfishToast-SQA2023-AUBURN/blob/2769a05c6fe101f7d7a6f425c9b882c7b46d835e/scanner.py#L110): Log validity warnings (Ex. incorrect type) or success information.
+
+\- [`isValidKey`](https://github.com/arj0019/JellyfishToast-SQA2023-AUBURN/blob/2769a05c6fe101f7d7a6f425c9b882c7b46d835e/scanner.py#L125): Log validity warnings (Ex. not in 'legit' list) or success information.
