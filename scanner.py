@@ -13,6 +13,22 @@ import json
 from sarif_om import *
 from jschema_to_python.to_json import to_json
 
+import logging
+import sys
+
+
+log_formatter = logging.Formatter("%(asctime)s %(message)s")
+logger = logging.getLogger().setLevel(logging.INFO)
+
+file_handler = logging.FileHandler("scanner.log")
+file_handler.setFormatter(log_formatter)
+logger.addHandler(file_handler)
+
+console_handler = logging.StreamHandler(sys.stdout)
+console_handler.setFormatter(log_formatter)
+logger.addHandler(console_handler)
+
+
 '''Global SarifLog Object definition and Rule definition for SLI-KUBE. Rule IDs are ordered by the sequence as it appears in the TOSEM paper'''
 
 sarif_log = SarifLog(version='2.1.0',schema_uri='https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json', runs =[])
@@ -61,45 +77,63 @@ helm_chart = []
 k8s_yaml =[]
 
 def getYAMLFiles(path_to_dir):
+    logger.info(f"retrieving YAML files at: {path_to_dir}")
     valid_  = [] 
     for root_, dirs, files_ in os.walk( path_to_dir ):
+       logger.info(f"found files: {files_}")
        for file_ in files_:
            full_p_file = os.path.join(root_, file_)
            if(os.path.exists(full_p_file)):
              if (full_p_file.endswith( constants.YML_EXTENSION  )  or full_p_file.endswith( constants.YAML_EXTENSION  )  ):
                valid_.append(full_p_file)
+               logger.warning(f"file/path is not YAML: {full_p_file}")
+           logger.warning(f"path does not exist: {full_p_file}")
+             
+    logger.info(f"retrieved files: {valid_}")
     return valid_ 
 
 def isValidUserName(uName): 
+    logger.info(f"checking validity of username: {uName}")
     valid = True
     if (isinstance( uName , str)  ): 
         if( any(z_ in uName for z_ in constants.FORBIDDEN_USER_NAMES )   ): 
+            logger.warning("username is not valid; {uName} is forbidden")
             valid = False   
         else: 
+            logger.info('username is valid: {uName})
             valid = True    
     else: 
+        logger.warning("username is not valid ({type(uName)} != str): uName")
         valid = False   
     return valid
 
 def isValidPasswordName(pName): 
+    logger.info(f"checking validity of password: {pName}")
     valid = True
     if (isinstance( pName , str)  ): 
         if( any(z_ in pName for z_ in constants.FORBIDDEN_PASS_NAMES) )  : 
+            logger.warning("password is not valid; {pName} is forbidden")
             valid = False  
         else: 
+            logger.info('password is valid: {pName})
             valid = True    
     else: 
+        logger.warning("password is not valid ({type(pName)} != str): pName")
         valid = False               
     return valid
 
 def isValidKey(keyName): 
+    logger.info(f"checking validity of key: {keyName}")
     valid = False 
     if ( isinstance( keyName, str )  ):
         if( any(z_ in keyName for z_ in constants.LEGIT_KEY_NAMES ) ) : 
+            logger.info('key is valid: {keyName})
             valid = True   
-        else: 
+        else:
+            logger.warning("key is not valid; {keyName} is not legit")
             valid = False     
     else: 
+        logger.warning("key is not valid ({type(keyName)} != str): keyName")
         valid = False                      
     return valid    
 
@@ -656,63 +690,62 @@ def runScanner(dir2scan):
                     print("Kubernetes YAML")
                 
                 val_cnt = val_cnt + 1 
-                print(constants.ANLYZING_KW + yml_ + constants.COUNT_PRINT_KW + yml_ +str(val_cnt) )
-               
-                print("get valid taint secrets")
+                logger.info(constants.ANLYZING_KW + yml_ + constants.COUNT_PRINT_KW + yml_ +str(val_cnt))
+                
+                logger.info("get valid taint secrets")
                 within_secret_, templ_secret_, valid_taint_secr  = scanSingleManifest( yml_ )
-
-
-                print("get privileged security contexts")
+                
+                logger.info("get privileged security contexts")
                 valid_taint_privi  = scanForOverPrivileges( yml_ )
-               
-                print("get insecure HTTP")            
+                
+                logger.info("get insecure HTTP")
                 http_dict             = scanForHTTP( yml_ )
-               
-                print("get missing security context") 
+                
+                logger.info("get missing security context")
                 absentSecuContextDict = scanForMissingSecurityContext( yml_ )
-               
-                print("get use of default namespace") 
+                
+                logger.info("get use of default namespace")
                 defaultNameSpaceDict  = scanForDefaultNamespace( yml_ )
-               
-                print("get missing resource limit")
+                
+                logger.info("get missing resource limit")
                 absentResourceDict    = scanForResourceLimits( yml_ )
-
-                print("get absent rolling update count") 
+                
+                logger.info("get absent rolling update count")
                 rollingUpdateDict     = scanForRollingUpdates( yml_ )
-
-                print("get absent network policy count") 
+                
+                logger.info("get absent network policy count")
                 absentNetPolicyDic    = scanForMissingNetworkPolicy( yml_ )
-
-                print(" get hostPIDs where True is assigned ")
+                
+                logger.info("get hostPIDs where True is assigned ")
                 pid_dic               = scanForTruePID( yml_ )
-
-                print("get hostIPCs where True is assigned") 
+                
+                logger.info("get hostIPCs where True is assigned")
                 ipc_dic               = scanForTrueIPC( yml_ )
                 
-                print("scan for docker sock paths: /var.run/docker.sock") 
+                logger.info("scan for docker sock paths: /var.run/docker.sock")
                 dockersock_dic        = scanDockerSock( yml_ )
-
-                print("scan for hostNetwork where True is assigned ")
+                
+                logger.info("scan for hostNetwork where True is assigned")
                 host_net_dic          = scanForHostNetwork( yml_ )
                 
-                print("scan for CAP SYS") 
+                logger.info("scan for CAP SYS")
                 cap_sys_dic           = scanForCAPSYS( yml_ )
                 
-                print("scan for Host Aliases") 
+                logger.info("scan for Host Aliases")
                 host_alias_dic        = scanForHostAliases( yml_ )
                 
-                print("scan for allowPrivilegeEscalation") 
+                logger.info("scan for allowPrivilegeEscalation")
                 allow_privi_dic       = scanForAllowPrivileges( yml_ )
                 
-                print("scan for unconfied seccomp ")
+                logger.info("scan for unconfied seccomp")
                 unconfied_seccomp_dict= scanForUnconfinedSeccomp( yml_ )
                 
-                print(" scan for cap sys module ")
+                logger.info("scan for cap sys module")
                 cap_module_dic        = scanForCAPMODULE( yml_ )
                 # need the flags to differentiate legitimate HELM and K8S flags 
                 
-                print (" \n\n---------------END FILE RUNNING--------------")
-                print(constants.SIMPLE_DASH_CHAR )
+                logger.info("---------------END FILE RUNNING--------------")
+                logger.info(constants.SIMPLE_DASH_CHAR)
                 
                 #print(yml_)
                 
@@ -726,10 +759,10 @@ def runScanner(dir2scan):
 
                 all_content.append( ( dir2scan, yml_, within_secret_, templ_secret_, valid_taint_secr, valid_taint_privi, http_dict, absentSecuContextDict, defaultNameSpaceDict, absentResourceDict, rollingUpdateDict, absentNetPolicyDic, pid_dic, ipc_dic, dockersock_dic, host_net_dic, cap_sys_dic, host_alias_dic, allow_privi_dic, unconfied_seccomp_dict, cap_module_dic, k8s_flag, helm_flag ) )
             else:
-                print("Invalid YAML --> ",yml_)
+                logging.warning(f"Invalid YAML --> {yml_}")
                 invalid_yaml.append(yml_)
         else:
-            print(" Weird YAML --> ",yml_)
+            logging.warning(f"Weird YAML --> {yml_}")
             weird_yaml.append(yml_)
 
         sarif_json = to_json(sarif_log)
