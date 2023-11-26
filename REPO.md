@@ -43,9 +43,9 @@ The following security weaknesses were detected for the given copy of KubeSec (a
 ## Implementation of Forensics (logging)
 Logging was [implemented](https://github.com/arj0019/JellyfishToast-SQA2023-AUBURN/blob/2769a05c6fe101f7d7a6f425c9b882c7b46d835e/scanner.py#L20) for five methods to enable forensic analysis of KubeSec.
 
-Methods within [`scanner.py`](https://github.com/arj0019/JellyfishToast-SQA2023-AUBURN/blob/2769a05c6fe101f7d7a6f425c9b882c7b46d835e/scanner.py) were selecteded for logging as they are referenced directly by main.py (by executing scanner.runScanner).
-
 The logger outputs to `sys.stdout` and `scanner.log`, so that the user may easily reference logs.
+
+Methods within [`scanner.py`](https://github.com/arj0019/JellyfishToast-SQA2023-AUBURN/blob/2769a05c6fe101f7d7a6f425c9b882c7b46d835e/scanner.py) were selecteded for logging as they are referenced directly by main.py (by executing scanner.runScanner).
 
 \- [`runScanner`](https://github.com/arj0019/JellyfishToast-SQA2023-AUBURN/blob/2769a05c6fe101f7d7a6f425c9b882c7b46d835e/scanner.py#L668): Log progress information and formatting warnings; relevant print statements replaced with logging.
 
