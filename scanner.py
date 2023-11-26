@@ -1,6 +1,6 @@
 '''
-Akond Rahman 
-May 03, 2021 
+Akond Rahman, Reid Johnson
+November, 2023
 Code to detect security anti-patterns 
 '''
 import parser 
