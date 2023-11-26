@@ -7,7 +7,7 @@
 
 # COMP-6710 TERM PROJECT (KubeSec Analysis)
 
-Reid Johnson (arj0019@auburn.edu) and John Chong (jhc0065@auburn.edu)
+Reid Johnson (arj0019@auburn.edu)
 
 Reference [REPO.md](REPO.md) for KubeSec analysis report.
 
