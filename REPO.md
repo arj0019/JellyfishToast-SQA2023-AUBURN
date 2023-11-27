@@ -3,20 +3,20 @@ Security of the repository was evaluated with the following pre-commit snippet.
 
 Weaknesses are stored in `bandit.csv`;  the user may abort the commit if any are detected.
 
-  ```
-  # Check and record security weaknesses with Bandit
-  bandit -f csv -r -o bandit.csv .
-  result=$?
-  
- # If Bandit recorded security weaknesses, allow the user to abort
-  if [ $result -ne 0 ]; then
-      read -p "Bandit found security weaknesses. Do you still want to commit? (y/n): " confirm
-      if [[ $confirm == [nN] || $confirm == [nN][oO] ]]; then
-          echo "Commit aborted."
-          exit 1
-      fi
-  fi
-  ```
+    ```
+    # Check and record security weaknesses with Bandit
+    bandit -f csv -r -o bandit.csv .
+    result=$?
+
+    # If Bandit recorded security weaknesses, allow the user to abort
+    if [ $result -ne 0 ]; then
+        read -p "Bandit found security weaknesses. Do you still want to commit? (y/n): " confirm
+        if [[ $confirm == [nN] || $confirm == [nN][oO] ]]; then
+            echo "Commit aborted."
+            exit 1
+        fi
+    fi
+    ```
 
 The following security weaknesses were detected for the given copy of KubeSec (as provided at [continuous-secsoft/sqa2023/project/KubeSec.zip](https://github.com/paser-group/continuous-secsoft/tree/master/sqa2023/project):
 
@@ -56,3 +56,70 @@ Methods within [`scanner.py`](https://github.com/arj0019/JellyfishToast-SQA2023-
 \- [`isValidPasswordName`](https://github.com/arj0019/JellyfishToast-SQA2023-AUBURN/blob/2769a05c6fe101f7d7a6f425c9b882c7b46d835e/scanner.py#L110): Log validity warnings (Ex. incorrect type) or success information.
 
 \- [`isValidKey`](https://github.com/arj0019/JellyfishToast-SQA2023-AUBURN/blob/2769a05c6fe101f7d7a6f425c9b882c7b46d835e/scanner.py#L125): Log validity warnings (Ex. not in 'legit' list) or success information.
+
+## Validating Functionality w/ Fuzzing and Git Hook
+
+Functionality of the repository was validated with the following pre-commit snippet.
+
+Errors are stored in `fuzz.log`;  the user may abort the commit if any are detected.
+
+    ```
+    # Validate functionality and record errors
+    python3 fuzz.py
+
+    # If fuzz.py recorded functionality errors; allow the user to abort
+    if [ -s fuzz.log ]; then
+        read -p "fuzz.py found functionality errors. Do you still want to commit? (y/n): " confirm
+        if [[ $confirm == [nN] || $confirm == [nN][oO] ]]; then
+            echo "Commit aborted."
+            exit 1
+        fi
+    fi
+    ```
+    
+Methods within [`scanner.py`](https://github.com/arj0019/JellyfishToast-SQA2023-AUBURN/blob/2769a05c6fe101f7d7a6f425c9b882c7b46d835e/scanner.py) were selecteded for fuzzing as they are referenced directly by main.py (by executing scanner.runScanner).
+
+The evaluated functionality of each of the follwoing methods is valid.
+
+\- [`getYAMLFiles`](https://github.com/arj0019/JellyfishToast-SQA2023-AUBURN/blob/c03a2b623fd5865d78c678a557929260986e8ac0/fuzz.py#L17): fuzz file detection at (non)existing paths.
+
+\- [`isValidUserName`](https://github.com/arj0019/JellyfishToast-SQA2023-AUBURN/blob/c03a2b623fd5865d78c678a557929260986e8ac0/fuzz.py#L21): fuzz forbidden usernames and common data types.
+
+\- [`isValidPasswordName`](https://github.com/arj0019/JellyfishToast-SQA2023-AUBURN/blob/c03a2b623fd5865d78c678a557929260986e8ac0/fuzz.py#L25): fuzz forbidden passwords and common data types.
+
+\- [`isValidKey`](https://github.com/arj0019/JellyfishToast-SQA2023-AUBURN/blob/c03a2b623fd5865d78c678a557929260986e8ac0/fuzz.py#L129): fuzz legit keys and common data types.
+
+\- [`checkIfValidSecret`](https://github.com/arj0019/JellyfishToast-SQA2023-AUBURN/blob/c03a2b623fd5865d78c678a557929260986e8ac0/fuzz.py#L33): fuzz invalid secrets and lengths.
+
+## pre-commit
+
+```
+#!/bin/bash
+
+# Check and record security weaknesses with Bandit
+bandit -f csv -r -o output.csv .
+result=$?
+
+# If Bandit recorded security weaknesses; allow the user to abort
+if [ $result -ne 0 ]; then
+    read -p "Bandit found security weaknesses. Do you still want to commit? (y/n): " confirm
+    if [[ $confirm == [nN] || $confirm == [nN][oO] ]]; then
+        echo "Commit aborted."
+        exit 1
+    fi
+fi
+
+# Validate functionality and record errors
+python3 fuzz.py
+
+# If fuzz.py recorded functionality errors; allow the user to abort
+if [ -s fuzz.log ]; then
+    read -p "fuzz.py found functionality errors. Do you still want to commit? (y/n): " confirm
+    if [[ $confirm == [nN] || $confirm == [nN][oO] ]]; then
+        echo "Commit aborted."
+        exit 1
+    fi
+fi
+
+exit 0
+```
