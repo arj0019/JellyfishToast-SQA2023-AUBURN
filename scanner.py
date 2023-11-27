@@ -17,7 +17,7 @@ import logging
 import sys
 
 log_formatter = logging.Formatter("%(asctime)s %(message)s")
-logger = logging.getLogger()
+logger = logging.getLogger("scannerLogger")
 logger.setLevel(logging.INFO)
 
 file_handler = logging.FileHandler("scanner.log")
@@ -77,63 +77,63 @@ helm_chart = []
 k8s_yaml =[]
 
 def getYAMLFiles(path_to_dir):
-    logger.info(f"retrieving YAML files at: {path_to_dir}")
+    logger.info("retrieving YAML files at: %s", path_to_dir)
     valid_  = [] 
     for root_, dirs, files_ in os.walk( path_to_dir ):
-       logger.info(f"found files: {files_}")
+       logger.info("found files: %s", files_)
        for file_ in files_:
            full_p_file = os.path.join(root_, file_)
            if(os.path.exists(full_p_file)):
              if (full_p_file.endswith( constants.YML_EXTENSION  )  or full_p_file.endswith( constants.YAML_EXTENSION  )  ):
                valid_.append(full_p_file)
-               logger.warning(f"file/path is not YAML: {full_p_file}")
-           logger.warning(f"path does not exist: {full_p_file}")
+               logger.warning("file/path is not YAML: %s", full_p_file)
+           logger.warning("path does not exist: %s", full_p_file)
              
-    logger.info(f"retrieved files: {valid_}")
+    logger.info("retrieved files: %s", valid_)
     return valid_ 
 
 def isValidUserName(uName): 
-    logger.info(f"checking validity of username: {uName}")
+    logger.info("checking validity of username: %s", uName)
     valid = True
     if (isinstance( uName , str)  ): 
         if( any(z_ in uName for z_ in constants.FORBIDDEN_USER_NAMES )   ): 
             logger.warning("username is not valid; {uName} is forbidden")
             valid = False   
         else: 
-            logger.info('username is valid: {uName})
+            logger.info("username is valid: %s", uName)
             valid = True    
     else: 
-        logger.warning("username is not valid ({type(uName)} != str): uName")
+        logger.warning("username is not valid (%s != str): %s", type(uName), uName)
         valid = False   
     return valid
 
 def isValidPasswordName(pName): 
-    logger.info(f"checking validity of password: {pName}")
+    logger.info("checking validity of password: %s", pName)
     valid = True
     if (isinstance( pName , str)  ): 
         if( any(z_ in pName for z_ in constants.FORBIDDEN_PASS_NAMES) )  : 
-            logger.warning("password is not valid; {pName} is forbidden")
+            logger.warning("password is not valid; %s is forbidden", pName)
             valid = False  
         else: 
-            logger.info('password is valid: {pName})
+            logger.info("password is valid: %s", pName)
             valid = True    
     else: 
-        logger.warning("password is not valid ({type(pName)} != str): pName")
+        logger.warning("password is not valid (%s != str): %s", type(pName), pName)
         valid = False               
     return valid
 
 def isValidKey(keyName): 
-    logger.info(f"checking validity of key: {keyName}")
+    logger.info("checking validity of key: %s", keyName)
     valid = False 
     if ( isinstance( keyName, str )  ):
         if( any(z_ in keyName for z_ in constants.LEGIT_KEY_NAMES ) ) : 
-            logger.info('key is valid: {keyName})
+            logger.info("key is valid: %s", keyName)
             valid = True   
         else:
-            logger.warning("key is not valid; {keyName} is not legit")
+            logger.warning("key is not valid; %s is not legit", keyName)
             valid = False     
     else: 
-        logger.warning("key is not valid ({type(keyName)} != str): keyName")
+        logger.warning("key is not valid (%s != str): %s", type(keyName), keyName)
         valid = False                      
     return valid    
 
