@@ -16,9 +16,9 @@ from jschema_to_python.to_json import to_json
 import logging
 import sys
 
-
 log_formatter = logging.Formatter("%(asctime)s %(message)s")
-logger = logging.getLogger().setLevel(logging.INFO)
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 file_handler = logging.FileHandler("scanner.log")
 file_handler.setFormatter(log_formatter)
